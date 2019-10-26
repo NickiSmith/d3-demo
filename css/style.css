@@ -1,1 +1,5 @@
-
+.statesPath {
+    stroke: gainsboro;
+    stroke-width: 0.5px;
+    stroke-linecap: round;
+}

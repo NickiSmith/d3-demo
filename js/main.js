@@ -1,6 +1,6 @@
 (function(){
     //pseudo-global variables for data join
-    var attrArray = ["GreenBeans", "BrusselsSprouts", "Potatoes", "Pumpkins", "SweetPotatoes", "Turkeys"]; //list of attributes
+    var attrArray = ["GreenBeans", "Potatoes", "Pumpkins", "SweetPotatoes", "Turkeys"]; //list of attributes
     var expressed = attrArray[0]; //initial attribute
 
 //begin script when window loads
@@ -8,7 +8,7 @@ window.onload = setMap();
 
 //set up choropleth map
 function setMap(){
-    
+
     //map frame dimensions
     var width = 900,
         height = 700;
@@ -27,15 +27,15 @@ function setMap(){
         .parallels([45.00, 33.00])
         .scale(1100)
         .translate([width / 2, height / 2]);
-    
+
     /*//would like to utilize the geoAlbersUSA projection to include Alaska and Hawaii, but doesn't work yet
     var projection = d3.geo.albersUSA()
         .scale(1000)
         .translate([width /2, height / 2]);*/
-    
+
     var path = d3.geoPath()
         .projection(projection);
-    
+
     //use queue to parallelize asynchronous data loading
     d3.queue()
         .defer(d3.csv, "data/ThanksgivingCrops.csv") //load attributes from csv
@@ -48,24 +48,30 @@ function setMap(){
 
         //call joinData() to join csv data to GeoJson enumeration units (US states)
         statesJoin = joinData(csv, statesUS);
-        
+
+        //create the color scale
+        var colorScale = makeColorScale(csv);
+
+
         //call setEnumerationUnits() to add enumeration units (states) to the map
-        setEnumerationUnits(statesUS, map, path);
+        setEnumerationUnits(statesUS, map, path, colorScale);
 
         //examine the results
         console.log(error);
-        console.log(csv)
+        console.log(csv);
         console.log(statesUS);
         console.log(statesJoin);
 
     } //end of the callback() function
-    
+
+} //end of setMap()
+
     function joinData(csv, us){
         //loop through csv to assign each set of csv attribute values to geojson region
         for (var i=0; i<csv.length; i++){
         var csvRegion = csv[i]; //the current region
         var csvKey = csvRegion.StateName; //the CSV primary key
-            
+
             //loop through geojson regions to find correct region
             for (var a=0; a<us.length; a++){
 
@@ -83,9 +89,13 @@ function setMap(){
                 } //end of if statement
             } //end of inner for loop
         } //end of outer for loop
+
+        console.log(us);
+        return us;
+
 } //end of joinData()
-    
-    function setEnumerationUnits(statesUS, map, path){
+
+    function setEnumerationUnits(statesUS, map, path, colorScale){
         //add US states to map
         var statesPath = map.selectAll(".statesPath")
         .data(statesUS)
@@ -94,8 +104,62 @@ function setMap(){
         .attr("class", function(d){
             return "statesPath " + d.properties.state;
         })
-        .attr("d", path);
+        .attr("d", path)
+        .style("fill", function(d){
+            return choropleth(d.properties,colorScale);
+        });
     } //end of setEnumerationUnits
-    
-} //end of the setMap() function
+
+    //function to create color scale generator
+    function makeColorScale(data){
+        var colorClasses = [
+            "#ffffcc",
+            "#c2e699",
+            "#78c679",
+            "#31a354",
+            "#006837"
+        ];
+
+        //create color scale generator
+        var colorScale = d3.scaleThreshold()
+          .range(colorClasses);
+
+        //build array of all values of the expressed attribute
+        var domainArray = [];
+        for (var i=0; i<data.length; i++){
+            var val = parseFloat(data[i][expressed]);
+            domainArray.push(val);
+        };
+
+        //cluster data using ckmeans clustering algorithm to create natural breaks
+        var clusters = ss.ckmeans(domainArray, 5);
+        //reset domain array to cluster minimums
+        domainArray = clusters.map(function(d){
+            return d3.min(d);
+        });
+        //remove first value from domain array to create class breakpoints
+        domainArray.shift();
+
+
+        //assign array of expressed values as scale domain
+        colorScale.domain(domainArray);
+
+        console.log(clusters);
+
+        return colorScale;
+
+    } //end of makeColorScale()
+
+    //function to test for data value and return color
+    function choropleth(props, colorScale){
+      //make sure attribute value is a number
+      var val = parseFloat(props[expressed]);
+      //if attribute value exists, assign a color; otherwise assign gray
+      if (typeof val == 'number' && !isNaN(val)){
+          return colorScale(val);
+        } else {
+          return "#CCC";
+        };
+      }; //end of choropleth
+
 })(); //end of self-executing anonymous function wrap which moves pseudo-global variables to local scope
