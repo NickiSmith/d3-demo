@@ -10,8 +10,10 @@ window.onload = setMap();
 function setMap(){
 
     //map frame dimensions
-    var width = 900,
-        height = 700;
+    //lab has "responsive" design using window.innerWidth, but this works very poorly because the map and chart don't actually resize
+    var width = 750,
+        //width = window.innerWidth * 0.5,
+        height = 550;
 
     //create new svg container for the map
     var map = d3.select("body")
@@ -19,13 +21,13 @@ function setMap(){
         .attr("class", "map")
         .attr("width", width)
         .attr("height", height);
-
+    
     //create Albers equal area conic projection centered on the US (update d3 namespace to v4 syntax geoAlbers not geo.albers -- https://stackoverflow.com/questions/42846588/uncaught-typeerror-cannot-read-property-albersusa-of-undefined)
     var projection = d3.geoAlbers()
-        .center([-4, 35])
+        .center([-4, 40])
         .rotate([93, 0, 0])
         .parallels([45.00, 33.00])
-        .scale(1100)
+        .scale(1000)
         .translate([width / 2, height / 2]);
 
     /*//would like to utilize the geoAlbersUSA projection to include Alaska and Hawaii, but doesn't work yet
@@ -55,13 +57,10 @@ function setMap(){
 
         //call setEnumerationUnits() to add enumeration units (states) to the map
         setEnumerationUnits(statesUS, map, path, colorScale);
-
-        //examine the results
-        console.log(error);
-        console.log(csv);
-        console.log(statesUS);
-        console.log(statesJoin);
-
+        
+        //add coordinated viz to the map
+        setChart(csv, colorScale);
+        
     } //end of the callback() function
 
 } //end of setMap()
@@ -144,8 +143,6 @@ function setMap(){
         //assign array of expressed values as scale domain
         colorScale.domain(domainArray);
 
-        console.log(clusters);
-
         return colorScale;
 
     } //end of makeColorScale()
@@ -154,12 +151,83 @@ function setMap(){
     function choropleth(props, colorScale){
       //make sure attribute value is a number
       var val = parseFloat(props[expressed]);
-      //if attribute value exists, assign a color; otherwise assign gray
+      //if attribute value exists, assign a color; otherwise assign gray; values designed as undisclosed in USDA dataset (D) have been replaced by 999999. These values should be assigned a separate color and explained in legend
       if (typeof val == 'number' && !isNaN(val)){
           return colorScale(val);
+        } else if (val == 999999) {
+            return "black"
         } else {
           return "#CCC";
         };
       }; //end of choropleth
 
+    //function to create coordinated bar chart
+    function setChart(csv, colorScale){
+        //chart frame dimensions
+        var chartWidth = 600,
+            chartHeight = 800;
+
+        //create a second svg element to hold the bar chart
+        var chart = d3.select("body")
+        .append("svg")
+        .attr("width", chartWidth)
+        .attr("height", chartHeight)
+        .attr("class", "chart");
+        
+        //create a scale to size bars proportionally to frame
+        //creating scale is going to be an issue due to value distribution
+        var yScale = d3.scaleLinear()
+        .range([0, chartHeight])
+        .domain([0, 80000]);
+
+        //Example 2.4 line 8...set bars for each state
+        var bars = chart.selectAll(".bars")
+        .data(csv)
+        .enter()
+        .append("rect")
+        .sort(function(a, b){
+            return a[expressed]-b[expressed]
+        })
+        .attr("class", function(d){
+            return "bars " + d.StateName;
+        })
+        .attr("width", chartWidth / csv.length - 1)
+        .attr("x", function(d, i){
+            return i * (chartWidth / csv.length);
+        })
+        .attr("height", function(d){
+            return yScale(parseFloat(d[expressed]));
+        })
+        .attr("y", function(d){
+            return chartHeight - yScale(parseFloat(d[expressed]));
+        })
+        .style("fill", function(d){
+            return choropleth(d, colorScale);
+        });
+        
+        //annotate bars with attribute value text
+        var numbers = chart.selectAll(".numbers")
+        .data(csv)
+        .enter()
+        .append("text")
+        .sort(function(a, b){
+            return a[expressed]-b[expressed]
+        })
+        .attr("class", function(d){
+            return "numbers " + d.StateNames;
+        })
+        .attr("text-anchor", "middle")
+        .attr("x", function(d, i){
+            var fraction = chartWidth / csv.length;
+            return i * fraction + (fraction - 1) / 2;
+        })
+        .attr("y", function(d){
+            return chartHeight - yScale(parseFloat(d[expressed])) + 15;
+        })
+        .text(function(d){
+            return d[expressed];
+        });
+        
+    }; //end of setChart()
+    
 })(); //end of self-executing anonymous function wrap which moves pseudo-global variables to local scope
