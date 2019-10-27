@@ -15,7 +15,7 @@
 
     var yScale = d3.scaleLinear()
         .range([chartHeight-10, 0])
-        .domain([0, 70000]); //csv first column max = ~60000
+        .domain([0, 65000]); //csv first column max = ~60000
     
 
 //begin script when window loads
@@ -166,17 +166,15 @@ window.onload = setMap();
 
     //function to test for data value and return color
     function choropleth(props, colorScale){
-      //make sure attribute value is a number
-      var val = parseFloat(props[expressed]);
-      //if attribute value exists, assign a color; otherwise assign gray; values designed as undisclosed in USDA dataset (D) have been replaced by 999999. These values should be assigned a separate color and explained in legend
-      if (typeof val == 'number' && !isNaN(val)){
-          return colorScale(val);
-        } else if (val == 999999) {
-            return "black"
+        //make sure attribute value is a number
+        var val = parseFloat(props[expressed]);
+        //if attribute value exists and is not equal to zero, assign a color; otherwise assign gray; values designed as undisclosed in USDA dataset (D) or under 0.5 acres [(Z) or not included] have been assigned zero value
+        if (typeof val == 'number' && !isNaN(val) && val !== 0){
+            return colorScale(val);
         } else {
-          return "#CCC";
+            return "#CCC";
         };
-      }; //end of choropleth
+    }; //end of choropleth
     
     //function to create coordinated bar chart
     function setChart(csv, colorScale){
@@ -194,12 +192,6 @@ window.onload = setMap();
         .attr("width", chartInnerWidth)
         .attr("height", chartInnerHeight)
         .attr("transform", translate);
-        
-        /*
-        //create a scale to size bars proportionally to frame
-        var csvmax = d3.max(csv, function(d) { return parseFloat(d[expressed]); });
-        console.log(csvmax);
-        */
                 
         //set bars for each state
         var bars = chart.selectAll(".bars")
@@ -213,28 +205,14 @@ window.onload = setMap();
             return "bars " + d.StateName;
         })
         .attr("width", chartInnerWidth / csv.length - 1)
-        
-        /* moved to separate function updateChart()
-        .attr("x", function(d, i){
-            return i * (chartInnerWidth / csv.length) + leftPadding;
-        })
-        .attr("height", function(d){
-            return chartHeight - 10 - yScale(parseFloat(d[expressed]));
-        })
-        .attr("y", function(d){
-            return yScale(parseFloat(d[expressed])) + topBottomPadding;
-        })
-        .style("fill", function(d){
-            return choropleth(d, colorScale);
-        });
-        */
-        
+    
         //create a text element for the chart title
         var chartTitle = chart.append("text")
         .attr("x", 120)
         .attr("y", 40)
         .attr("class", "chartTitle")
-        .text("Acres of " + expressed + " grown in each state");
+        //add an if statement here to generate correct spelling of column header?
+        .text("Acres of " + expressed + " grown");
         
         //create vertical axis generator
         var yAxis = d3.axisLeft()
@@ -317,6 +295,8 @@ window.onload = setMap();
 
         //recolor enumeration units
         var statesPath = d3.selectAll(".statesPath")
+        .transition() //add animation
+        .duration(1000)
         .style("fill", function(d){
             return choropleth(d.properties, colorScale)
         });
@@ -327,6 +307,11 @@ window.onload = setMap();
         .sort(function(a, b){
             return b[expressed] - a[expressed];
         })
+        .transition() //add animation
+        .delay(function(d, i){
+            return 1 * 20
+        })
+        .duration(500);
         
         //set bar positions, heights, and colors
         updateChart(bars, csv.length, colorScale);
@@ -348,6 +333,10 @@ window.onload = setMap();
         .style("fill", function(d){
             return choropleth(d, colorScale);
         });
+        
+        var chartTitle = d3.select(".chartTitle")
+        //add an if statement here to generate correct spelling of column header?
+        .text("Acres of " + expressed + " grown");
 
     }; //end of update chart
     

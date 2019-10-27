@@ -1,6 +1,6 @@
 StateName,GreenBeans,Potatoes,Pumpkins,SweetPotatoes,BrusselsSprouts
 Alabama,294,942,272,2178,1
-Alaska,9,541,4,,4
+Alaska,9,541,4,0,4
 Arizona,28,3401,241,4,1
 Arkansas,403,67,363,4598,2
 California,7519,41413,4386,21565,8036
@@ -10,7 +10,7 @@ Delaware,2343,1131,897,82,1
 Florida,27823,30378,91,5678,85
 Georgia,10499,2871,74,800,2
 Hawaii,291,149,275,876,0
-Idaho,593,335042,1243,,0
+Idaho,593,335042,1243,0,0
 Illinois,7449,8112,17399,44,44
 Indiana,2232,8647,5330,21,3
 Iowa,459,733,919,21,11
@@ -20,14 +20,14 @@ Louisiana,124,81,45,9314,3
 Maine,320,50211,673,9,17
 Maryland,3147,2561,1022,141,5
 Massachusetts,421,3640,1735,37,28
-Michigan,12706,50511,5123,-1,69
+Michigan,12706,50511,5123,0,69
 Minnesota,4465,46278,1827,33,44
-Mississippi,259,441,262,29150,-1
-Missouri,692,8553,1257,-1,5
+Mississippi,259,441,262,29150,0
+Missouri,692,8553,1257,0,5
 Montana,23,10965,118,1,1
 Nebraska,37,20176,1015,8,1
-Nevada,3,-1,173,-1,0
-New Hampshire,138,107,489,3,-1
+Nevada,3,0,173,0,0
+New Hampshire,138,107,489,3,0
 New Jersey,2828,1977,2224,1101,32
 New Mexico,58,5634,2223,5,2
 New York,23901,15315,5592,57,148
@@ -35,17 +35,17 @@ North Carolina,4711,13867,2715,92495,16
 North Dakota,10,77614,66,1,0
 Ohio,2895,2111,3454,39,29
 Oklahoma,233,2193,268,957,0
-Oregon,11896,46300,2655,-1,63
+Oregon,11896,46300,2655,0,63
 Pennsylvania,6877,7643,6871,151,63
 Rhode Island,47,624,110,2,1
-South Carolina,883,-1,109,1300,6
+South Carolina,883,0,109,1300,6
 South Dakota,14,97,158,2,1
 Tennessee,6132,276,1393,224,6
 Texas,6266,22829,3742,622,23
 Utah,149,569,1415,1,0
 Vermont,61,248,437,31,22
 Virginia,1401,4213,3184,286,21
-Washington,2604,167801,2591,4,-1
+Washington,2604,167801,2591,4,0
 West Virginia,219,361,191,15,4
 Wisconsin,63842,70110,3401,335,79
-Wyoming,3,-1,10,,-1
+Wyoming,3,0,10,0,0
