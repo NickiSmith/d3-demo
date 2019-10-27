@@ -1,16 +1,57 @@
+/*  Nicki Smith d3 lab October 2019*/
+
+
+/* map svg */
 .map {
 /*    border: medium solid #999;*/
     margin: 10px 0 0 20px;
 }
 
+/* chart svg */
 .chart {
 /*    background-color: rgba(128,128,128,.2);*/
 /*    border: medium solid #999;*/
     float: right;
     margin: 10px 20px 0 0;
 }
+
+/* state outlines */
 .statesPath {
     stroke: gainsboro;
     stroke-width: 0.5px;
     stroke-linecap: round;
+}
+
+.chartFrame {
+	fill: none;
+	stroke: none;
+	stroke-width: 1px;
+	shape-rendering: crispEdges;
+}
+
+
+.chartBackground {
+	fill: none;
+}
+
+.axis path,
+.axis line {
+	fill: none;
+	stroke: darkolivegreen;
+	stroke-width: 1px;
+	shape-rendering: crispEdges;
+}
+
+.axis text {
+	font-family: sans-serif;
+	font-size: 0.8em;
+	fill: darkolivegreen;
+}
+
+/* Title for bar chart */
+.chartTitle {
+    fill: darkolivegreen;
+    font-family: sans-serif;
+    font-size: 1.5em;
+    font-weight: bold;
 }
