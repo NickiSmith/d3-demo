@@ -10,7 +10,7 @@
         rightPadding = 2,
         topBottomPadding = 5,
         chartInnerWidth = chartWidth - leftPadding - rightPadding,
-        chartInnerHeight = chartHeight - topBottomPadding * 2,
+           chartInnerHeight = chartHeight - topBottomPadding * 2,
         translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
 
     var yScale = d3.scaleLinear()
@@ -56,7 +56,7 @@ window.onload = setMap();
     //use queue to parallelize asynchronous data loading
     d3.queue()
         .defer(d3.csv, "data/ThanksgivingCrops.csv") //load attributes from csv
-        .defer(d3.json, "data/states.json") //load background spatial data
+        .defer(d3.json, "data/states.topojson") //load background spatial data
         .await(callback);
 
     function callback(error, csv, us){
@@ -86,7 +86,7 @@ window.onload = setMap();
         //loop through csv to assign each set of csv attribute values to geojson region
         for (var i=0; i<csv.length; i++){
         var csvRegion = csv[i]; //the current region
-        var csvKey = csvRegion.StateName; //the CSV primary key
+        var csvKey = csvRegion.name; //the CSV primary key
 
             //loop through geojson regions to find correct region
             for (var a=0; a<us.length; a++){
@@ -118,22 +118,35 @@ window.onload = setMap();
         .enter()
         .append("path")
         .attr("class", function(d){
-            return "statesPath " + d.properties.state;
+            return "statesPath " + d.properties.name;
         })
         .attr("d", path)
         .style("fill", function(d){
             return choropleth(d.properties,colorScale);
-        });
+        })
+        .on("mouseover", function(d){
+            highlight(d.properties);
+        })
+        .on("mouseout", function(d){
+            dehighlight(d.properties);
+        })
+        .on("mousemove", moveLabel);
+        
+        //add style descriptor to each path
+        var desc = statesPath.append("desc")
+        .text('{"stroke": "gainsboro", "stroke-width": "0.5px"}');
+
+        
     } //end of setEnumerationUnits
 
     //function to create color scale generator
     function makeColorScale(data){
         var colorClasses = [
-            "#ffffcc",
-            "#c2e699",
-            "#78c679",
-            "#31a354",
-            "#006837"
+            "#ffffd4",
+            "#fed98e",
+            "#fe9929",
+            "#d95f0e",
+            "#993404"
         ];
 
         //create color scale generator
@@ -202,9 +215,14 @@ window.onload = setMap();
             return b[expressed]-a[expressed]
         })
         .attr("class", function(d){
-            return "bars " + d.StateName;
+            return "bars " + d.name;
         })
         .attr("width", chartInnerWidth / csv.length - 1)
+        .attr("width", chartInnerWidth / csv.length - 1)
+        .on("mouseover", highlight)
+        .on("mouseout", dehighlight)
+        .on("mousemove", moveLabel);
+        
     
         //create a text element for the chart title
         var chartTitle = chart.append("text")
@@ -237,6 +255,10 @@ window.onload = setMap();
         
         //set bar positions, heights, and colors
         updateChart(bars, csv.length, colorScale);
+        
+        //add style descriptor to each rect
+        var desc = bars.append("desc")
+        .text('{"stroke": "none", "stroke-width": "0px"}');
         
     }; //end of setChart()
     
@@ -339,5 +361,69 @@ window.onload = setMap();
         .text("Acres of " + expressed + " grown");
 
     }; //end of update chart
+    
+     //function to highlight enumeration units and bars
+    function highlight(props){
+        //change stroke
+        var selected = d3.selectAll("." + props.name)
+        .style("stroke", "#1e6a95")
+        .style("stroke-width", "3");
+        
+        setLabel(props);
+        
+    }; //end of highlight()
+    
+    //function to reset the element style on mouseout
+    function dehighlight(props){
+        var selected = d3.selectAll("." + props.name)
+        .style("stroke", function(){
+            return getStyle(this, "stroke")
+        })
+        .style("stroke-width", function(){
+            return getStyle(this, "stroke-width")
+        });
+    
+        //remove info label
+        d3.select(".infolabel")
+            .remove();
+
+        function getStyle(element, styleName){
+            var styleText = d3.select(element)
+            .select("desc")
+            .text();
+
+            var styleObject = JSON.parse(styleText);
+
+            return styleObject[styleName];
+        };
+    }; //end of dehighligh()
+    
+    //function to create dynamic label
+    function setLabel(props){
+        //label content
+        var labelAttribute = "<h1>" + props[expressed] + "</h1><b>" + expressed + "</b>";
+
+        //create info label div
+        var infolabel = d3.select("body")
+        .append("div")
+        .attr("class", "infolabel")
+        .attr("id", props.state + "_label")
+        .html(labelAttribute);
+
+        var regionName = infolabel.append("div")
+        .attr("class", "labelname")
+        .html(props.name);
+    }; //end of setLabel()
+
+    //function to move info label with mouse
+    function moveLabel(){
+        //use coordinates of mousemove event to set label coordinates
+        var x = d3.event.clientX + 10,
+            y = d3.event.clientY - 75;
+
+        d3.select(".infolabel")
+            .style("left", x + "px")
+            .style("top", y + "px");
+    };
     
 })(); //end of self-executing anonymous function wrap which moves pseudo-global variables to local scope
