@@ -4,11 +4,11 @@
     var expressed = attrArray[0]; //initial attribute
     
     //chart frame dimensions
-    var chartWidth = 600,
-        chartHeight = 525,
+    var chartWidth = 550,
+        chartHeight = 500,
         leftPadding = 50,
         rightPadding = 2,
-        topBottomPadding = 5,
+        topBottomPadding = -5,
         chartInnerWidth = chartWidth - leftPadding - rightPadding,
            chartInnerHeight = chartHeight - topBottomPadding * 2,
         translate = "translate(" + leftPadding + "," + topBottomPadding + ")";
@@ -25,10 +25,9 @@ window.onload = setMap();
     function setMap(){
 
         //map frame dimensions
-        //lab has "responsive" design using window.innerWidth,  but this works very poorly because the map and chart don't actually resize
+        //lab has "responsive" design using window.innerWidth, but this works very poorly because the map and chart don't actually resize. Opted for fixed width.
         var width = 750,
-            //width = window.innerWidth * 0.5,
-            height = 550;
+            height = 570;
 
         //create new svg container for the map
         var map = d3.select("body")
@@ -37,18 +36,13 @@ window.onload = setMap();
         .attr("width", width)
         .attr("height", height);
     
-    //create Albers equal area conic projection centered on the US (update d3 namespace to v4 syntax geoAlbers not geo.albers -- https://stackoverflow.com/questions/42846588/uncaught-typeerror-cannot-read-property-albersusa-of-undefined)
+    //create Albers equal area conic projection centered on the US
     var projection = d3.geoAlbers()
-        .center([-4, 40])
+        .center([-3.8, 36.5])
         .rotate([93, 0, 0])
         .parallels([45.00, 33.00])
         .scale(1000)
         .translate([width / 2, height / 2]);
-
-    /*//would like to utilize the geoAlbersUSA projection to include Alaska and Hawaii, but doesn't work yet
-    var projection = d3.geo.albersUSA()
-        .scale(1000)
-        .translate([width /2, height / 2]);*/
 
     var path = d3.geoPath()
         .projection(projection);
@@ -60,16 +54,16 @@ window.onload = setMap();
         .await(callback);
 
     function callback(error, csv, us){
-        //translate France regions TopoJSON
+        //translate states TopoJSON
         var statesUS = topojson.feature(us, us.objects.states).features;
 
-        //call joinData() to join csv data to GeoJson enumeration units (US states)
+        //call joinData() to join csv data to GeoJson enumeration units
         statesJoin = joinData(csv, statesUS);
 
         //create the color scale
         var colorScale = makeColorScale(csv);
 
-        //call setEnumerationUnits() to add enumeration units (states) to the map
+        //call setEnumerationUnits() to add enumeration units to the map
         setEnumerationUnits(statesUS, map, path, colorScale);
         
         //add coordinated viz to the map
@@ -135,7 +129,6 @@ window.onload = setMap();
         //add style descriptor to each path
         var desc = statesPath.append("desc")
         .text('{"stroke": "#443626", "stroke-width": "0.5px"}');
-
         
     } //end of setEnumerationUnits
 
@@ -181,7 +174,7 @@ window.onload = setMap();
     function choropleth(props, colorScale){
         //make sure attribute value is a number
         var val = parseFloat(props[expressed]);
-        //if attribute value exists and is not equal to zero, assign a color; otherwise assign gray; values designed as undisclosed in USDA dataset (D) or under 0.5 acres [(Z) or not included] have been assigned zero value
+        //if attribute value exists and is not equal to zero, assign a color; otherwise assign gray; values designed as undisclosed in USDA dataset (D) or under 0.5 acres [(Z) or not included] have been assigned zero value in original CSV.
         if (typeof val == 'number' && !isNaN(val) && val !== 0){
             return colorScale(val);
         } else {
@@ -229,7 +222,6 @@ window.onload = setMap();
         .attr("x", 120)
         .attr("y", 40)
         .attr("class", "chartTitle")
-        //add an if statement here to generate correct spelling of column header?
         .text("Acres of " + expressed + " grown");
         
         //create vertical axis generator
@@ -243,15 +235,12 @@ window.onload = setMap();
         .attr("transform", translate)
         .call(yAxis);
         
-    
         //create frame for chart border
         var chartFrame = chart.append("rect")
         .attr("class", "chartFrame")
         .attr("width", chartInnerWidth)
         .attr("height", chartInnerHeight)
         .attr("transform", translate);
-        
-        //return csvmax;
         
         //set bar positions, heights, and colors
         updateChart(bars, csv.length, colorScale);
@@ -357,8 +346,7 @@ window.onload = setMap();
         });
         
         var chartTitle = d3.select(".chartTitle")
-        //add an if statement here to generate correct spelling of column header?
-        .text("Acres of " + expressed + " grown");
+        .text("Acres of " + expressed + " Grown");
 
     }; //end of update chart
     
