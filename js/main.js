@@ -1,6 +1,6 @@
 (function(){
     //pseudo-global variables for data join
-    var attrArray = ["GreenBeans", "Potatoes", "Pumpkins", "SweetPotatoes", "BrusselsSprouts"]; //list of attributes
+    var attrArray = ["Green Beans", "Potatoes", "Pumpkins", "Sweet Potatoes", "Brussels Sprouts"]; //list of attributes
     var expressed = attrArray[0]; //initial attribute
     
     //chart frame dimensions
@@ -134,7 +134,7 @@ window.onload = setMap();
         
         //add style descriptor to each path
         var desc = statesPath.append("desc")
-        .text('{"stroke": "gainsboro", "stroke-width": "0.5px"}');
+        .text('{"stroke": "#443626", "stroke-width": "0.5px"}');
 
         
     } //end of setEnumerationUnits
@@ -185,7 +185,7 @@ window.onload = setMap();
         if (typeof val == 'number' && !isNaN(val) && val !== 0){
             return colorScale(val);
         } else {
-            return "#CCC";
+            return "#f3f1e7";
         };
     }; //end of choropleth
     
@@ -258,7 +258,7 @@ window.onload = setMap();
         
         //add style descriptor to each rect
         var desc = bars.append("desc")
-        .text('{"stroke": "none", "stroke-width": "0px"}');
+        .text('{"stroke": "#443626", "stroke-width": "0px"}');
         
     }; //end of setChart()
     
@@ -366,7 +366,7 @@ window.onload = setMap();
     function highlight(props){
         //change stroke
         var selected = d3.selectAll("." + props.name)
-        .style("stroke", "#1e6a95")
+        .style("stroke", "#443626")
         .style("stroke-width", "3");
         
         setLabel(props);
@@ -396,7 +396,7 @@ window.onload = setMap();
 
             return styleObject[styleName];
         };
-    }; //end of dehighligh()
+    }; //end of dehighlight()
     
     //function to create dynamic label
     function setLabel(props){
