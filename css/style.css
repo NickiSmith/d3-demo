@@ -137,3 +137,11 @@ option {
     top: 670px;
     left: 65px;
 }
+
+#farm {
+    position: absolute;
+    z-index: -1;
+    top: 30px;
+    left: 300px;
+    opacity: 0.15;
+}
