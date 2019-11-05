@@ -100,7 +100,7 @@ window.onload = setMap();
             } //end of inner for loop
         } //end of outer for loop
 
-        console.log(us);
+        //console.log(us);
         return us;
 
 } //end of joinData()
@@ -397,11 +397,17 @@ window.onload = setMap();
         .attr("class", "infolabel")
         .attr("id", props.state + "_label")
         .html(labelAttribute);
+        
+        var formatName = props.name.replace("_", " ");
 
         var regionName = infolabel.append("div")
         .attr("class", "labelname")
-        .html(props.name);
+        //.html(props.name);
+        .html(formatName);
+        
     }; //end of setLabel()
+    
+    
 
     //function to move info label with mouse
     function moveLabel(){
