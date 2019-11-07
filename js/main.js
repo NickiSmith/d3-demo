@@ -389,7 +389,7 @@ window.onload = setMap();
     //function to create dynamic label
     function setLabel(props){
         //label content
-        var labelAttribute = "<h1>" + props[expressed] + "</h1><b>" + expressed + "</b>";
+        var labelAttribute = "<h1>" + props[expressed] + "</h1><b>" + "acres of " + expressed + "</b>";
 
         //create info label div
         var infolabel = d3.select("body")

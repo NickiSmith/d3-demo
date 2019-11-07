@@ -102,9 +102,9 @@ h1 {
     text-align: center;
     padding: 2px;
     border: 1px solid #999;
-    box-shadow: 2px 2px 4px #443626;
-    background-color: beige;
-    color: var(--textColor);
+    box-shadow: 2px 2px 3px #443626;
+    background-color: #443626;
+    color: ivory;
 }
 
 option {
