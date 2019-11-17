@@ -56,6 +56,8 @@ window.onload = setMap();
     function callback(error, csv, us){
         //translate states TopoJSON
         var statesUS = topojson.feature(us, us.objects.states).features;
+    
+        console.log("test");
 
         //call joinData() to join csv data to GeoJson enumeration units
         statesJoin = joinData(csv, statesUS);
